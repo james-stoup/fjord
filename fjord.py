@@ -52,14 +52,13 @@ print('welcome to fjord')
 class Fjord(npyscreen.NPSAppManaged):
     def onStart(self):
         self.addForm("MAIN", MainForm, name='Fjord')
-#        self.addForm("FORM2", ConnectionForm, name='Connect/Disconnect')
+        self.addForm("CONNECTION_FORM", ConnectionForm, name='Connect/Disconnect')
 
 
 # This form class defines the display that will be presented to the user.
-class MainForm(npyscreen.Form):
+#class MainForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):
+class MainForm(npyscreen.ActionForm):
     def create(self):
-#        npyscreen.setTheme(npyscreen.Themes.ColorfulTheme)
-        
         self.MyTitle = self.add(npyscreen.TitleText, name = "Welcome to Fjord", editable=False )
         self.ConnectionStatus = self.add(npyscreen.TitleText, name='Status:', value='Disconnected', editable=False, color='DANGER')
 
@@ -71,39 +70,37 @@ class MainForm(npyscreen.Form):
         self.nextrely += 1
         self.Settings = self.add(npyscreen.TitleText, name = 'Settings', editable=False)
         self.nextrely += 1
-        
+
         # prevent editing once connected
         self.Country = self.add(npyscreen.TitleText, name='Country', value='France')
         self.City = self.add(npyscreen.TitleText, name='City', value='Paris')
         self.Protocol = self.add(npyscreen.TitleText, name = 'Protocol', value='UDP')
 
-        # val_list = ["enabled", "disabled"]
-        # self.KillSwitch = self.add(npyscreen.TitleText, name = 'Kill Switch', value='disabled', values=val_list)
-
-        # Options = npyscreen.OptionList()
-        # options = Options.options
-        # options.append(npyscreen.OptionMultiChoice('Multichoice', choices=["enabled", "disabled"]))
-        # self.add(npyscreen.OptionListDisplay, name = 'Kill Switch', values=options, scroll_exit=False, max_height=None)
+        self.Obfuscate = self.add(npyscreen.TitleText, name = 'Obfuscate', value='disabled')
+        self.AutoConnect = self.add(npyscreen.TitleText, name = 'Auto Connect', value='disabled')
+        self.DNS = self.add(npyscreen.TitleText, name = 'DNS', value='disabled')
         
-        # self.Obfuscate = self.add(npyscreen.TitleText, name = 'Obfuscate', value='disabled')
-        # self.AutoConnect = self.add(npyscreen.TitleText, name = 'Auto Connect', value='disabled')
-        # self.DNS = self.add(npyscreen.TitleText, name = 'DNS', value='disabled')
-        
-        self.KillSwitch = self.add(npyscreen.TitleSelectOne, values=['Enabled', 'Disabled'], name = 'Kill Switch')
+        self.KillSwitch = self.add(npyscreen.TitleSelectOne, values=['Enabled', 'Disabled'], name = 'Kill Switch', max_height=3)
 
         self.nextrely += 1
-#        self.button = self.add(npyscreen.Button, name='Connect', value_changed_callback=self.buttonPress)
+        self.button = self.add(npyscreen.Button, name='Connect', value_changed_callback=self.buttonPress)
 
+        
     def buttonPress(self, widget):
         npyscreen.notify_confirm('Button pressed!', title='Woot', wrap=True, wide=True, editw=1)
-        self.parentApp.switchForm('FORM2')
+        self.parentApp.switchForm('CONNECTION_FORM')
         
-    def afterEditing(self):
+    def on_ok(self):
         self.parentApp.setNextForm(None)
+
+    def on_cancel(self):
+        self.parentApp.setNextForm(None)
+
 # END CLASS
 
 
 class ConnectionForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):
+#class ConnectionForm(npyscreen.ActionForm):
     def create(self):
         self.name = self.add(npyscreen.TitleText, name='Determining status...', editable=False)
         self.parentApp.setNextForm('MAIN')
