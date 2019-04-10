@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import logging
+import random
+
 import npyscreen
 
 print('welcome to fjord')
@@ -89,6 +92,18 @@ class MainForm(npyscreen.ActionForm):
         
     def connectButtonPress(self, widget):
         #npyscreen.notify_confirm('Button pressed!', title='Woot', wrap=True, wide=True, editw=1)
+
+        logging.debug('CON STAT VAL: %s' % self.ConnectionStatus.value)
+
+        # DEBUG - testing the limits
+        # rand_num = random.randint(1,1001)
+        # self.ConnectionStatus.set_value('CONNECTED - %s' % rand_num)
+
+        if self.ConnectionStatus.value == 'Disconnected':
+            self.ConnectionStatus.set_value('Connected')
+        elif self.ConnectionStatus.value == 'Connected':
+            self.ConnectionStatus.set_value('Disconnected')
+             
         self.parentApp.switchForm('CONNECTION_FORM')
         
     def on_ok(self):
@@ -103,13 +118,19 @@ class MainForm(npyscreen.ActionForm):
 # Go ahead and return to the main screen
 class ExitButton(npyscreen.ButtonPress):
     def whenPressed(self):
+        val = self.parent.parentApp.main_form.ConnectionStatus.value
+        logging.debug('CONNECTION STATUS: %s' % val)
+
         # change the connection status
-        if self.parent.parentApp.main_form.ConnectionStatus.value == 'Connected':
-            self.parent.parentApp.main_form.ConnectionStatus.value = 'Disconnected'
+        # if self.parent.parentApp.main_form.ConnectionStatus.value == 'Connected':
+        #     self.parent.parentApp.main_form.ConnectionStatus.set_value('Disconnected')
+        #     logging.debug('  C -> D')
 
-        if self.parent.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
-            self.parent.parentApp.main_form.ConnectionStatus.value = 'Connected'
+        # if self.parent.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
+        #     self.parent.parentApp.main_form.ConnectionStatus.set_value('Connected')
+        #     logging.debug('  D -> C')
 
+        # self.parent.parentApp.main_form.DISPLAY()
         self.parent.parentApp.switchForm('MAIN')
 
         
@@ -117,6 +138,7 @@ class ExitButton(npyscreen.ButtonPress):
 class ConnectionForm(npyscreen.FormBaseNew):
     """ The form used to display the connect/disconnct output """
     def create(self):
+        logging.debug('connection form created')
         self.parentApp.setNextForm('MAIN')
         self.name = self.add(npyscreen.TitleText, name='Connecting To VPN', editable=False)
 
@@ -151,6 +173,9 @@ class ConnectionForm(npyscreen.FormBaseNew):
         
 def main():
     """ Welcome to Fjord, a better way of using NordVPN """
+
+    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+    
     fjord = Fjord()
     fjord.run()
     
