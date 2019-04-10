@@ -2,7 +2,6 @@
 
 import npyscreen
 
-
 print('welcome to fjord')
 
 
@@ -50,9 +49,11 @@ print('welcome to fjord')
 
 # Primary class
 class Fjord(npyscreen.NPSAppManaged):
+    Global_Connection_Status = 'Disconnected'
+    
     def onStart(self):
-        self.addForm("MAIN", MainForm, name='Fjord')
-        self.addForm("CONNECTION_FORM", ConnectionForm, name='Connect/Disconnect')
+        self.main_form = self.addForm("MAIN", MainForm, name='Fjord')
+        self.con_form = self.addForm("CONNECTION_FORM", ConnectionForm, name='Connect/Disconnect')
 
 
 # This form class defines the display that will be presented to the user.
@@ -83,11 +84,11 @@ class MainForm(npyscreen.ActionForm):
         self.KillSwitch = self.add(npyscreen.TitleSelectOne, values=['Enabled', 'Disabled'], name = 'Kill Switch', max_height=3)
 
         self.nextrely += 1
-        self.button = self.add(npyscreen.Button, name='Connect', value_changed_callback=self.buttonPress)
+        self.connectButton = self.add(npyscreen.Button, name='Connect', value_changed_callback=self.connectButtonPress)
 
         
-    def buttonPress(self, widget):
-        npyscreen.notify_confirm('Button pressed!', title='Woot', wrap=True, wide=True, editw=1)
+    def connectButtonPress(self, widget):
+        #npyscreen.notify_confirm('Button pressed!', title='Woot', wrap=True, wide=True, editw=1)
         self.parentApp.switchForm('CONNECTION_FORM')
         
     def on_ok(self):
@@ -99,19 +100,51 @@ class MainForm(npyscreen.ActionForm):
 # END CLASS
 
 
-class ConnectionForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):
-#class ConnectionForm(npyscreen.ActionForm):
+# Go ahead and return to the main screen
+class ExitButton(npyscreen.ButtonPress):
+    def whenPressed(self):
+        # change the connection status
+        if self.parent.parentApp.main_form.ConnectionStatus.value == 'Connected':
+            self.parent.parentApp.main_form.ConnectionStatus.value = 'Disconnected'
+
+        if self.parent.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
+            self.parent.parentApp.main_form.ConnectionStatus.value = 'Connected'
+
+        self.parent.parentApp.switchForm('MAIN')
+
+        
+#class ConnectionForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):        
+class ConnectionForm(npyscreen.FormBaseNew):
+    """ The form used to display the connect/disconnct output """
     def create(self):
-        self.name = self.add(npyscreen.TitleText, name='Determining status...', editable=False)
         self.parentApp.setNextForm('MAIN')
+        self.name = self.add(npyscreen.TitleText, name='Connecting To VPN', editable=False)
 
-    def on_ok(self):
-        npyscreen.notify_confirm("Saved! Going back to main form", title="OK Presed", wrap=True, wide=True, editw=1)
-        self.parentApp.setNextForm('MAIN')
+        # I can't make the exit button hidden because then it will explode, so I need to come
+        # up with some way to force the user to view all the output before they return to main.
+        self.exitButton = self.add(ExitButton, name="Exit", relx=-15, rely=-5, hidden=False)
 
-    def on_cancel(self):
-        npyscreen.notify_confirm("NOT Saved, going back to main form", title="OK Presed", wrap=True, wide=True, editw=1)
-        self.parentApp.setNextForm('MAIN') # Back to main form
+        # change the connection status
+        # if self.parentApp.main_form.ConnectionStatus.value == 'Connected':
+        #     self.parentApp.main_form.ConnectionStatus.value = 'Disconnected'
+
+        # if self.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
+        #     self.parentApp.main_form.ConnectionStatus.value = 'Connected'
+            
+    # def output_status(self):
+    #     # print the output from nordvpn to here
+
+    #     # once done, go ahead and enable the exit button
+    #     self.exitButton.hidden=False
+
+#class ConnectionForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):        
+    # def on_ok(self):
+    #     npyscreen.notify_confirm("Saved! Going back to main form", title="OK Pressed", wrap=True, wide=True, editw=1)
+    #     self.parentApp.setNextForm('MAIN')
+
+    # def on_cancel(self):
+    #     npyscreen.notify_confirm("NOT Saved, going back to main form", title="OK Pressed", wrap=True, wide=True, editw=1)
+    #     self.parentApp.setNextForm('MAIN') # Back to main form
 # END CLASS
 
 
