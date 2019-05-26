@@ -167,27 +167,37 @@ class ConnectionForm(npyscreen.FormBaseNew):
         logging.debug("connection form created")
         self.parentApp.setNextForm("MAIN")
         self.name = self.add(
-            npyscreen.TitleText, name="Connecting To VPN", editable=False
+            npyscreen.TitleText, name="VPN Connection Status", editable=False
         )
+
+        self.testStr = self.add(npyscreen.TitleText, name="Test string", editable=True)
+        self.testStr2 = self.add(npyscreen.TitleText, name="Test string", editable=True)
+        self.testStr3 = self.add(npyscreen.TitleText, name="Test string", editable=True)
+
+        logging.debug(
+            "connection status is : %s"
+            % self.parentApp.main_form.ConnectionStatus.value
+        )
+
+        # change the connection status
+        if self.parentApp.main_form.ConnectionStatus.value == "Connected":
+            #     self.parentApp.main_form.ConnectionStatus.value = 'Disconnected'
+            logging.debug("connected!")
+
+        # if self.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
+        #     self.parentApp.main_form.ConnectionStatus.value = 'Connected'
+
+        # def output_status(self):
+        #     # print the output from nordvpn to here
+
+        #     # once done, go ahead and enable the exit button
+        #     self.exitButton.hidden=False
 
         # I can't make the exit button hidden because then it will explode, so I need to come
         # up with some way to force the user to view all the output before they return to main.
         self.exitButton = self.add(
             ExitButton, name="Exit", relx=-15, rely=-5, hidden=False
         )
-
-        # change the connection status
-        # if self.parentApp.main_form.ConnectionStatus.value == 'Connected':
-        #     self.parentApp.main_form.ConnectionStatus.value = 'Disconnected'
-
-        # if self.parentApp.main_form.ConnectionStatus.value == 'Disconnected':
-        #     self.parentApp.main_form.ConnectionStatus.value = 'Connected'
-
-    # def output_status(self):
-    #     # print the output from nordvpn to here
-
-    #     # once done, go ahead and enable the exit button
-    #     self.exitButton.hidden=False
 
 
 # class ConnectionForm(npyscreen.ActionForm, npyscreen.SplitForm, npyscreen.FormWithMenus):
@@ -201,7 +211,7 @@ class ConnectionForm(npyscreen.FormBaseNew):
 # END CLASS
 
 
-def main():
+def cli():
     """ Welcome to Fjord, a better way of using NordVPN """
 
     logging.basicConfig(
@@ -216,5 +226,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    # npyscreen.wrapper(Fjord().run())
+    cli()
+# npyscreen.wrapper(Fjord().run())
